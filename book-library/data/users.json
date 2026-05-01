@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": "84fe2b72-9688-4765-9a18-01cb206abfad",
+    "title": "hl",
+    "content": " second post"
+  },
+  {
+    "id": "a989f33d-ce9f-4a0d-ad7e-ac8a85569462",
+    "email": "test@mail.com",
+    "password": "123456"
+  },
+  {
+    "id": "c8f56dff-24ca-4a29-9831-f805b90a202e",
+    "email": "test@mail.com",
+    "password": "123456"
+  }
+]

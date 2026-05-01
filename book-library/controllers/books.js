@@ -1,61 +1,41 @@
-import createError from 'http-errors';
 import Books from '../models/books.js';
 
-export async function getAll(req, res, next) {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+export async function getAll(req, res) {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
-        const { books, total } = await Books.findAll(
-            req.userId,
+    const { books, total } = await Books.findAll(req.userId, page, limit);
+
+    res.json({
+        books,
+        pagination: {
             page,
-            limit
-        );
-
-        res.json({
-            books,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit)
-            }
-        });
-
-    } catch (err) {
-        next(err);
-    }
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+        }
+    });
 }
 
-export async function create(req, res, next) {
-    try {
-        const { title, author, year, genre } = req.body;
+export async function create(req, res) {
+    const book = await Books.create({
+        ...req.body,
+        userId: req.userId
+    });
 
-        const book = await Books.create({
-            title,
-            author,
-            year,
-            genre,
-            userId: req.userId
-        });
-
-        res.json({
-            message: "Book added successfully",
-            book
-        });
-
-    } catch (err) {
-        next(err);
-    }
+    res.json({ book });
 }
 
-export async function update(req, res, next) {}
-export async function deleteBook(req, res, next) {}
+export async function update(req, res) {
+    const book = await Books.update(req.params.id, req.userId, req.body);
+    if (!book) return res.status(404).json({ message: 'Not found' });
 
-export default {
-    getAll,
-    create,
-    update,
-    delete: deleteBook
-};
+    res.json({ book });
+}
 
+export async function remove(req, res) {
+    const ok = await Books.deleteBook(req.params.id, req.userId);
+    if (!ok) return res.status(404).json({ message: 'Not found' });
+
+    res.json({ message: 'Deleted' });
+}

@@ -1,58 +1,58 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-const filePath = path.resolve('data/books.json');
+const file = path.resolve('book-library/data/books.json');
 
-async function readJSON() {
+async function read() {
     try {
-        const data = await fs.readFile(filePath, 'utf8');
-        return JSON.parse(data || '[]');
+        const data = await fs.readFile(file, 'utf8');
+        return JSON.parse(data);
     } catch {
         return [];
     }
 }
 
-async function writeJSON(data) {
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+async function write(data) {
+    await fs.writeFile(file, JSON.stringify(data, null, 2));
 }
 
-export async function findAll(userId, page = 1, limit = 10) {
-    const books = await readJSON();
-
+export async function findAll(userId, page, limit) {
+    const books = await read();
     const userBooks = books.filter(b => b.userId === userId);
 
-    const total = userBooks.length;
-
     const skip = (page - 1) * limit;
-
-    const paginated = userBooks.slice(skip, skip + limit);
-
-    return { books: paginated, total };
+    return {
+        books: userBooks.slice(skip, skip + limit),
+        total: userBooks.length
+    };
 }
 
-export async function create(data) {
-    const books = await readJSON();
-
-    const newBook = {
-        id: uuidv4(),
-        ...data
-    };
-
+export async function create(book) {
+    const books = await read();
+    const newBook = { id: uuid(), ...book };
     books.push(newBook);
-    await writeJSON(books);
-
+    await write(books);
     return newBook;
 }
 
-export async function findById(id) {}
-export async function update(id, userId, data) {}
-export async function deleteBook(id, userId) {}
+export async function update(id, userId, data) {
+    const books = await read();
+    const index = books.findIndex(b => b.id === id && b.userId === userId);
+    if (index === -1) return null;
 
-export default {
-    findAll,
-    create,
-    findById,
-    update,
-    deleteBook
-};
+    books[index] = { ...books[index], ...data };
+    await write(books);
+    return books[index];
+}
+
+export async function deleteBook(id, userId) {
+    const books = await read();
+    const newBooks = books.filter(b => !(b.id === id && b.userId === userId));
+    if (books.length === newBooks.length) return false;
+
+    await write(newBooks);
+    return true;
+}
+
+export default { findAll, create, update, deleteBook };

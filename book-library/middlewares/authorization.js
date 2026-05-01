@@ -1,24 +1,7 @@
-import createError from 'http-errors';
-import Users from '../models/users.js';
+export default function (req, res, next) {
+    const token = req.headers.authorization;
+    if (!token) return res.status(401).json({ message: 'No token' });
 
-export default async function authorization(req, res, next) {
-    try {
-        const token = req.headers.authorization;
-
-        if (!token) {
-            return next(createError(401, 'No token'));
-        }
-
-        const data = Users.decrypt(token);
-
-        if (!data || !data.userId) {
-            return next(createError(401, 'Invalid token'));
-        }
-
-        req.userId = data.userId;
-
-        next();
-    } catch (err) {
-        next(err);
-    }
+    req.userId = token;
+    next();
 }
