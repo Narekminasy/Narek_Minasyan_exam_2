@@ -7,14 +7,19 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemeon app.js",
-    "start": "node app.js"
+    "dev": "nodemon book-library/app.js",
+    "start": "node book-library/app.js"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "http-errors": "^2.0.1",
+    "md5": "^2.3.0",
     "morgan": "^1.10.1",
     "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
